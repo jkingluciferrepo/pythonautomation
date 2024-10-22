@@ -1,0 +1,27 @@
+from playwright.sync_api import sync_playwright, expect
+
+with sync_playwright() as play:
+    browser = play.chromium.launch(headless=False)
+    page = browser.new_page()
+    page.goto('https://www.amazon.in')
+    print("Browser launched Successfully !!")
+    print(page.title())
+    searchbar = page.wait_for_selector('#twotabsearchtextbox')
+    searchbar.fill('OnePlus 11R 5G')
+    searchbtn = page.wait_for_selector('#nav-search-submit-button')
+    searchbtn.click()
+    additem = page.wait_for_selector('#a-autoid-3-announce')
+    additem.click()
+    gotocart = page.wait_for_selector('#nav-cart')
+    gotocart.scroll_into_view_if_needed()
+    page.wait_for_timeout(3000)
+    itemcout = page.wait_for_selector('#nav-cart-count')
+    count_item = int (itemcout.text_content())
+    assert count_item == 1
+    gotocart.click()
+    verifyitem = page.wait_for_selector("//span[contains(text(), 'OnePlus 11R 5G ')]")
+    assert verifyitem.is_visible()
+    print("Item added to cart successfully! and the item is :", verifyitem.text_content())
+    print(page.title())
+    page.wait_for_timeout(3000)
+    browser.close()
